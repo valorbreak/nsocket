@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Socket Example</title>
+  <link rel='stylesheet' type='text/css' href='/assets/css/bootstrap.min.css'  />
+  <style type='text/css'>
+    .chatbox{
+      margin: 20px 0 0 0;
+      height: 400px;
+      overflow-y: scroll;
+    }
+    #myForm {
+      margin: 20px 0 0 0;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Static navbar -->
+<div class="navbar navbar-default" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="#">Chat Box Example</a>
+    </div>
+    <div class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container-fluid -->
+</div>
+<div class='container'>
+  <div class='row'>
+    <div class='col-md-12'>
+      <h2>Chat Box Example</h2>
+      <div id="chatBox" class='chatbox'>
+        <!-- This is where the messages would go -->
+      </div>
+    </div>
+  </div>
+  <div class='row'>
+    <div class='col-md-12'>
+      <form id="myForm" onsubmit="return false">
+        Name: <input type="text" name="username">
+        Message: <input type="text" name="message">
+        <input type="button" name='myFormSubmit' value="Submit form">
+        <input type="button" name='myFormClear' value="Clear form">
+      </form>
+    </div>
+  </div>
+</div>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/javascripts/jquery-1.11.0.min.js"></script>
+<script>
+// Utilized Jquery
+(function(){
+  // Connect to the socket server
+  var socket = io.connect('http://localhost');
+  // Server Responses
+  socket.on('connect', function() {
+    console.log('connected');
+  });
+  socket.on('news', function (data) {
+    socket.emit('my other event', { my: 'data' });
+  });
+  socket.on('loadJSON', function (data) {
+    for(var x= 0, end = data.length; x<end; x++){
+      var node = document.createElement("div");
+      var item = data[x];
+      var textnode = document.createTextNode(item.timestamp+' ('+item.data.username+'): '+item.data.message);
+      node.appendChild(textnode);
+      document.getElementById("chatBox").appendChild(node);
+    }
+  });
+  socket.on('watchlog', function (data) {
+    var node = document.createElement("div");
+    var textnode = document.createTextNode(data.timestamp+' ('+data.data.username+'): '+data.data.message);
+    var objDiv = document.getElementById("chatBox");
+    node.appendChild(textnode);
+    objDiv.appendChild(node);
+    objDiv.scrollTop = objDiv.scrollHeight;
+  });
+
+  // Client Requests
+  // Get the Value from the form myForm
+  // This could be done via jquery, however we want the example to be minimum
+  var inputElement = document.getElementById('myForm');
+  // If the user presses enter in the form
+  // submit the value inside the input tag
+
+
+  inputElement.onkeydown = function(keyboardEvent){
+    // 13 ASCII code for ENTER
+    if(keyboardEvent.keyCode === 13){
+      socket.emit('send event', {'message': inputElement.message.value, 'username': inputElement.username.value } );
+      //inputElement.reset(); // Reset the input form
+      inputElement.message.value = ''; // Reset the message box
+      inputElement.username.value = inputElement.username.value;
+      return false;
+    }
+    else {
+      return true;
+    }
+  };
+  // When the use clicks submit
+  // send the values in the form to the server
+  inputElement.myFormSubmit.onclick = function(clickEvent){
+    socket.emit('send event', {'message': inputElement.message.value, 'username': inputElement.username.value } );
+    var username = inputElement.username.value;
+    //inputElement.reset(); // Reset the input form
+    inputElement.message.value = ''; // Reset the message box
+    inputElement.username.value = username;
+  };
+
+  inputElement.myFormClear.onclick = function(clickEvent){
+    var chatBoxArea = document.getElementById("chatBox");
+    while (chatBoxArea.firstChild) {
+      chatBoxArea.removeChild(chatBoxArea.firstChild);
+    }
+    socket.emit('clear form');
+    // Reset the input form
+    inputElement.reset();
+  };
+}());
+</script>
+</body>
+</html>
