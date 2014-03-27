@@ -1,12 +1,19 @@
 {
-"name": "application-name",
-"version": "0.0.1",
-"private": true,
-"scripts": {
-"start": "node app.js"
-},
-"dependencies": {
-"express": "3.4.8",
-"socket.io": "*"
-}
+  "name": "NodeWebSocket-Example",
+  "version": "0.0.1",
+  "author" : "valorbreak",
+  "private": true,
+  "scripts": {
+    "start": "node app.js"
+  },
+  "contributors": [
+    {
+      "name": "Leslie Uri Acuesta",
+      "email": "uri@afterofficeit.com"
+    }
+  ],
+  "dependencies": {
+    "express": "3.4.8",
+    "socket.io": "*"
+  }
 }

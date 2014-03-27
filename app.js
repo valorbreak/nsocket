@@ -11,10 +11,10 @@ var user = require('./routes/user');
 var http = require('http');
 var path = require('path');
 
-
+/*
 var app = express();
 // all environments
-app.set('port', process.env.PORT || 3000);
+app.set('port', process.env.PORT || 80);
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 app.use(express.favicon());
@@ -36,27 +36,41 @@ app.get('/users', user.list);
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
 });
-
+*/
 
 // Socket IO code Start
 var socketIO = require('socket.io');
 var chatApp = express();
-var chatServer = require('http').createServer(chatApp);
+var chatServer = http.createServer(chatApp);
 var io = socketIO.listen(chatServer);
 var fs = require('fs');
 
 // Listen to port 80
 chatApp.set('port', process.env.PORT || 80);
 chatApp.set('views', path.join(__dirname, 'views'));
+//@todo change this to not jade, (use hbs)
+chatApp.set('view engine', 'jade');
+chatApp.use(express.favicon());
+chatApp.use(express.logger('dev'));
+chatApp.use(express.json());
+chatApp.use(express.urlencoded());
+chatApp.use(express.methodOverride());
+chatApp.use(chatApp.router);
 
 // Enable the application to view the public folder
 chatApp.use(express.static(path.join(__dirname, 'public')));
-chatServer.listen(chatApp.get('port'));
+chatApp.get('/', routes.index);
+chatApp.get('/users', user.list);
+chatServer.listen(chatApp.get('port'), function () {
+  console.log('Express + websocket server listening on port ' + chatApp.get('port'));
+});
 
 chatApp.get('/chat', function (req, res) {
   res.sendfile(chatApp.get('views') + '/chat.html');
 });
 
+
+// Remember var 'io' is just socketIO.listen(chatServer);
 io.sockets.on('connection', function (socket) {
   var file = __dirname + '/public/json/file.json';
   var jsonFile;
