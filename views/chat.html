@@ -62,7 +62,7 @@
 // Utilized Jquery
 (function(){
   // Connect to the socket server
-  var socket = io.connect('http://localhost');
+  var socket = io.connect();
   // Server Responses
   socket.on('connect', function() {
     console.log('connected');
