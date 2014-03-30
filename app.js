@@ -49,7 +49,9 @@ var fs = require('fs');
 chatApp.set('port', process.env.PORT || 80);
 chatApp.set('views', path.join(__dirname, 'views'));
 //@todo change this to not jade, (use hbs)
+/*
 chatApp.set('view engine', 'jade');
+*/
 chatApp.use(express.favicon());
 chatApp.use(express.logger('dev'));
 chatApp.use(express.json());
